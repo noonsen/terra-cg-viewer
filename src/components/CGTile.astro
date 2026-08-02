@@ -1,0 +1,51 @@
+---
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+
+interface Props {
+  image: string | ImageMetadata;
+  caption?: string;
+  credit: string;
+  heightPx: number;
+  bgMix: number;
+  index: number;
+  hero?: boolean;
+}
+
+const { image, caption, credit, heightPx, bgMix, index, hero = false } = Astro.props;
+const isRealImage = typeof image !== 'string';
+---
+
+<button
+  type="button"
+  data-cg-index={index}
+  aria-label={`Open ${caption ?? 'event CG'} full size`}
+  class="cg-tile group relative block w-full overflow-hidden rounded-sm border border-(--text-secondary)/30 text-left focus-visible:outline-2 focus-visible:outline-(--accent-text) focus-visible:outline-offset-2"
+>
+  {
+    isRealImage ? (
+      <Image
+        src={image}
+        alt={caption ?? ''}
+        loading="lazy"
+        width={hero ? 1400 : 640}
+        format="webp"
+        quality={hero ? 80 : 68}
+        class="block w-full"
+        style={hero ? 'max-height: 480px; width: 100%; object-fit: cover;' : 'height: auto;'}
+      />
+    ) : (
+      <div
+        aria-hidden="true"
+        class="flex w-full items-center justify-center font-mono text-xs text-(--surface)/50"
+        style={`height: ${heightPx}px; background: color-mix(in srgb, var(--accent) ${bgMix}%, var(--bg));`}
+      >
+        {image}
+      </div>
+    )
+  }
+  <div class="absolute inset-x-0 bottom-0 translate-y-full bg-(--bg)/95 p-2 text-(--text-primary) transition-transform duration-200 group-hover:translate-y-0 group-focus-visible:translate-y-0">
+    {caption && <p class="font-body text-sm">{caption}</p>}
+    <p class="font-mono text-xs uppercase tracking-wide text-(--text-muted)">{credit}</p>
+  </div>
+</button>

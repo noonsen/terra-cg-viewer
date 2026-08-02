@@ -1,0 +1,62 @@
+@import "tailwindcss";
+
+@import "@fontsource/space-grotesk/500.css";
+@import "@fontsource/space-grotesk/700.css";
+@import "@fontsource/space-mono/400.css";
+@import "@fontsource/inter/400.css";
+@import "@fontsource/inter/600.css";
+
+@theme {
+  --font-display: "Space Grotesk", sans-serif;
+  --font-mono: "Space Mono", monospace;
+  --font-body: "Inter", sans-serif;
+}
+
+/*
+  Single site-wide theme (Lone Trail palette). --text-muted and --accent-text
+  are lightened derivatives of --text-secondary / --accent, used anywhere the
+  color carries real reading text — the raw tokens fall short of 4.5:1 against
+  --bg and are reserved for borders, large UI chrome, and backgrounds instead.
+*/
+:root {
+  --bg: #181818;
+  --surface: #f5eddc;
+  --text-primary: #f5eddc;
+  --text-secondary: #5c7f71;
+  --text-muted: color-mix(in srgb, #5c7f71 65%, white);
+  --accent: #b2653b;
+  --accent-text: color-mix(in srgb, #b2653b 80%, white);
+  --accent-alt: #ba8530;
+  --danger: #802520;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text-primary);
+}
+
+.skip-link {
+  position: absolute;
+  left: 1rem;
+  top: -3rem;
+  z-index: 50;
+  transition: top 0.15s ease;
+}
+
+.skip-link:focus {
+  top: 1rem;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent-text);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

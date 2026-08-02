@@ -1,0 +1,187 @@
+---
+interface FlatCG {
+  imageSrc?: string;
+  imageLabel?: string;
+  caption?: string;
+  credit: string;
+  episode?: string;
+  episodeTitle?: string;
+}
+
+interface Props {
+  cgs: FlatCG[];
+}
+
+const { cgs } = Astro.props;
+const cgsJson = JSON.stringify(cgs).replace(/</g, '\\u003c');
+---
+
+<dialog
+  id="cg-lightbox"
+  aria-label="Event CG viewer"
+  class="m-auto max-h-none max-w-none border-none bg-transparent p-0 backdrop:bg-(--bg)/90"
+>
+  <div class="relative flex h-dvh w-dvw items-center justify-center gap-4 p-4 md:p-8">
+    <button
+      type="button"
+      id="lightbox-close"
+      aria-label="Close viewer"
+      class="absolute top-4 right-4 z-20 rounded-full border border-(--text-secondary)/40 bg-(--bg)/80 px-3 py-2 font-mono text-sm text-(--text-primary) hover:border-(--accent) focus-visible:outline-2 focus-visible:outline-(--accent-text) focus-visible:outline-offset-2"
+    >
+      ✕ Close
+    </button>
+
+    <p
+      id="lightbox-counter"
+      class="absolute top-4 left-4 z-20 rounded-sm bg-(--bg)/80 px-2 py-1 font-mono text-xs text-(--text-muted)"
+      aria-live="polite"
+    >
+    </p>
+
+    <button
+      type="button"
+      id="lightbox-prev"
+      aria-label="Previous CG"
+      class="z-20 shrink-0 rounded-sm border border-(--text-secondary)/40 bg-(--bg)/70 px-2 py-6 font-mono text-lg text-(--text-primary) hover:border-(--accent) focus-visible:outline-2 focus-visible:outline-(--accent-text) focus-visible:outline-offset-2"
+    >
+      ‹
+    </button>
+
+    <figure class="flex max-h-full min-w-0 flex-1 flex-col items-center">
+      <div
+        id="lightbox-image"
+        aria-hidden="true"
+        class="flex w-full max-w-4xl items-center justify-center rounded-sm font-mono text-sm text-(--surface)/50"
+        style="height: min(70vh, 640px);"
+      >
+      </div>
+      <img
+        id="lightbox-img"
+        alt=""
+        hidden
+        class="max-h-[70vh] w-auto max-w-4xl rounded-sm object-contain"
+      />
+      <figcaption class="mt-3 w-full max-w-4xl text-center">
+        <span
+          id="lightbox-episode"
+          class="mr-2 rounded-sm bg-(--accent-alt) px-2 py-0.5 font-mono text-xs font-bold text-(--bg)"
+        ></span>
+        <span id="lightbox-title" class="font-display text-lg font-bold text-(--text-primary)"></span>
+        <p id="lightbox-credit" class="mt-1 font-mono text-xs uppercase tracking-wide text-(--text-muted)"></p>
+      </figcaption>
+    </figure>
+
+    <button
+      type="button"
+      id="lightbox-next"
+      aria-label="Next CG"
+      class="z-20 shrink-0 rounded-sm border border-(--text-secondary)/40 bg-(--bg)/70 px-2 py-6 font-mono text-lg text-(--text-primary) hover:border-(--accent) focus-visible:outline-2 focus-visible:outline-(--accent-text) focus-visible:outline-offset-2"
+    >
+      ›
+    </button>
+  </div>
+</dialog>
+
+<script id="cg-lightbox-data" type="application/json" set:html={cgsJson} />
+
+<script>
+  interface FlatCG {
+    imageSrc?: string;
+    imageLabel?: string;
+    caption?: string;
+    credit: string;
+    episode?: string;
+    episodeTitle?: string;
+  }
+
+  const dataEl = document.getElementById('cg-lightbox-data');
+  const cgs: FlatCG[] = dataEl ? JSON.parse(dataEl.textContent ?? '[]') : [];
+
+  const dialog = document.getElementById('cg-lightbox') as HTMLDialogElement | null;
+  const imageEl = document.getElementById('lightbox-image');
+  const imgEl = document.getElementById('lightbox-img') as HTMLImageElement | null;
+  const episodeEl = document.getElementById('lightbox-episode');
+  const titleEl = document.getElementById('lightbox-title');
+  const creditEl = document.getElementById('lightbox-credit');
+  const counterEl = document.getElementById('lightbox-counter');
+  const closeBtn = document.getElementById('lightbox-close');
+  const prevBtn = document.getElementById('lightbox-prev');
+  const nextBtn = document.getElementById('lightbox-next');
+
+  let currentIndex = 0;
+  let lastFocused: HTMLElement | null = null;
+
+  function render(index: number) {
+    const cg = cgs[index];
+    if (!cg || !imageEl || !imgEl || !titleEl || !creditEl || !counterEl || !episodeEl) return;
+    currentIndex = index;
+
+    if (cg.imageSrc) {
+      imgEl.src = cg.imageSrc;
+      imgEl.alt = cg.caption ?? '';
+      imgEl.hidden = false;
+      imageEl.hidden = true;
+    } else {
+      const mix = 30 + (index % 3) * 15;
+      imageEl.style.background = `color-mix(in srgb, var(--accent) ${mix}%, var(--bg))`;
+      imageEl.textContent = cg.imageLabel ?? '';
+      imageEl.hidden = false;
+      imgEl.hidden = true;
+    }
+    titleEl.textContent = cg.caption ?? '';
+    creditEl.textContent = cg.credit;
+    counterEl.textContent = `${index + 1} / ${cgs.length}`;
+
+    if (cg.episode) {
+      episodeEl.textContent = cg.episodeTitle ? `${cg.episode} — ${cg.episodeTitle}` : cg.episode;
+      episodeEl.hidden = false;
+    } else {
+      episodeEl.hidden = true;
+    }
+  }
+
+  function open(index: number, trigger: HTMLElement) {
+    if (!dialog) return;
+    lastFocused = trigger;
+    render(index);
+    dialog.showModal();
+  }
+
+  function close() {
+    dialog?.close();
+    // Native <dialog> focus-restoration relies on which element was actually
+    // DOM-focused when showModal() ran; explicitly re-focusing our tracked
+    // trigger avoids depending on that (e.g. with synthetic/programmatic opens).
+    lastFocused?.focus();
+  }
+
+  function step(delta: number) {
+    if (!cgs.length) return;
+    render((currentIndex + delta + cgs.length) % cgs.length);
+  }
+
+  document.querySelectorAll<HTMLButtonElement>('[data-cg-index]').forEach((tile) => {
+    tile.addEventListener('click', () => {
+      const idx = Number(tile.dataset.cgIndex);
+      if (!Number.isNaN(idx)) open(idx, tile);
+    });
+  });
+
+  closeBtn?.addEventListener('click', close);
+  prevBtn?.addEventListener('click', () => step(-1));
+  nextBtn?.addEventListener('click', () => step(1));
+
+  dialog?.addEventListener('click', (event) => {
+    if (event.target === dialog) close();
+  });
+
+  dialog?.addEventListener('keydown', (event) => {
+    if (event.key === 'ArrowLeft') step(-1);
+    if (event.key === 'ArrowRight') step(1);
+  });
+
+  // Covers native close paths that bypass our close() (Escape key).
+  dialog?.addEventListener('close', () => {
+    lastFocused?.focus();
+  });
+</script>

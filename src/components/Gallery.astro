@@ -1,0 +1,135 @@
+---
+import { Masonry } from 'astro-masonry';
+import { getImage } from 'astro:assets';
+import CGTile from './CGTile.astro';
+import EpisodeTileGrid from './EpisodeTileGrid.astro';
+import CGLightbox from './CGLightbox.astro';
+import type { ImageMetadata } from 'astro';
+
+interface CG {
+  image: string | ImageMetadata;
+  caption?: string;
+  source: string;
+  credit: string;
+  episode?: string;
+  episodeTitle?: string;
+  hero?: boolean;
+}
+
+interface Props {
+  cgs: CG[];
+}
+
+const { cgs } = Astro.props;
+
+// Deterministic placeholder heights/hues until an event's real CG assets are
+// all wired in (events can mix real images and placeholder labels).
+const placeholderHeights = [280, 360, 220, 320, 260, 400];
+
+// Group CGs by episode while preserving their original order and global index
+// (the lightbox navigates across the flattened list, not per-group). CGs
+// without an episode label fall into a single unlabeled group.
+interface Group {
+  code: string | null;
+  title: string | null;
+  anchorId: string;
+  items: { cg: CG; index: number }[];
+}
+
+const groups: Group[] = [];
+cgs.forEach((cg, index) => {
+  const code = cg.episode ?? null;
+  const current = groups.at(-1);
+  if (current && current.code === code) {
+    current.items.push({ cg, index });
+  } else {
+    groups.push({
+      code,
+      title: cg.episodeTitle ?? null,
+      anchorId: `ep-${groups.length}`,
+      items: [{ cg, index }],
+    });
+  }
+});
+---
+
+<EpisodeTileGrid
+  episodes={groups.map((g, gi) => ({
+    code: g.code,
+    title: g.title,
+    anchorId: g.anchorId,
+    bgMix: 30 + (gi % 3) * 15,
+    coverImage: g.items[0]?.cg.image,
+  }))}
+/>
+
+<div class="flex flex-col gap-10">
+  {
+    groups.map((group) => {
+      const heroes = group.items.filter((it) => it.cg.hero);
+      const rest = group.items.filter((it) => !it.cg.hero);
+      return (
+        <div id={group.anchorId} class="scroll-mt-6">
+          {group.code && (
+            <p class="mb-3 font-mono text-xs uppercase tracking-widest text-(--text-muted)">
+              {group.code}
+              {group.title && ` — ${group.title}`}
+            </p>
+          )}
+
+          {heroes.map((it, hi) => (
+            <div class="mb-3">
+              <CGTile
+                image={it.cg.image}
+                caption={it.cg.caption}
+                credit={it.cg.credit}
+                heightPx={480}
+                bgMix={30 + hi % 3 * 15}
+                index={it.index}
+                hero
+              />
+            </div>
+          ))}
+
+          {rest.length > 0 && (
+            <Masonry
+              breakpointCols={{ default: 4, 1100: 3, 700: 2, 500: 1 }}
+              class="flex gap-3 px-0"
+              columnClass="flex flex-col gap-3"
+            >
+              {rest.map((it, i) => (
+                <CGTile
+                  image={it.cg.image}
+                  caption={it.cg.caption}
+                  credit={it.cg.credit}
+                  heightPx={placeholderHeights[i % placeholderHeights.length]}
+                  bgMix={30 + (i % 3) * 15}
+                  index={it.index}
+                />
+              ))}
+            </Masonry>
+          )}
+        </div>
+      );
+    })
+  }
+</div>
+
+<CGLightbox
+  cgs={await Promise.all(
+    cgs.map(async (cg) => {
+      const optimized =
+        typeof cg.image === 'string'
+          ? null
+          : await getImage({ src: cg.image, width: 1600, format: 'webp', quality: 82 });
+      return {
+        imageSrc: optimized?.src,
+        imageLabel: typeof cg.image === 'string' ? cg.image : undefined,
+        caption: cg.caption,
+        credit: cg.credit,
+        episode: cg.episode,
+        episodeTitle: cg.episodeTitle,
+      };
+    })
+  )}
+/>

@@ -1,0 +1,62 @@
+---
+---
+
+<div
+  id="loading-splash"
+  aria-hidden="true"
+  class="loading-splash pointer-events-none fixed inset-0 z-50 flex flex-col items-center justify-center gap-3 bg-(--bg)"
+>
+  <p class="font-display text-2xl font-bold uppercase tracking-[0.3em] text-(--text-primary)">
+    Terra
+  </p>
+  <p id="loading-percent" class="font-mono text-sm text-(--accent-text)">LOADING — 0%</p>
+</div>
+
+<style>
+  /*
+    Removal is driven by this CSS animation, not JS, so the splash never gets
+    stuck covering the page if scripts fail to run. pointer-events is disabled
+    unconditionally for the same reason: even a stuck splash can't block clicks.
+  */
+  .loading-splash {
+    animation: loading-splash-fade 900ms ease forwards;
+  }
+
+  @keyframes loading-splash-fade {
+    0%,
+    55% {
+      opacity: 1;
+      visibility: visible;
+    }
+    100% {
+      opacity: 0;
+      visibility: hidden;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .loading-splash {
+      animation: none;
+      opacity: 0;
+      visibility: hidden;
+    }
+  }
+</style>
+
+<script>
+  const el = document.getElementById('loading-percent');
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (el && !reduceMotion) {
+    const start = performance.now();
+    const duration = 550;
+    const tick = (now: number) => {
+      const pct = Math.min(100, Math.round(((now - start) / duration) * 100));
+      el.textContent = `LOADING — ${pct}%`;
+      if (pct < 100) requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  } else if (el) {
+    el.textContent = 'LOADING — 100%';
+  }
+</script>

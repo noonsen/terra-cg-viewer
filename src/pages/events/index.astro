@@ -1,0 +1,18 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import EventCardGrid from '../../components/EventCardGrid.astro';
+---
+
+<BaseLayout title="All Events — Terra CG Viewer" skipHref="#event-list" skipLabel="Skip to event list">
+  <main class="mx-auto max-w-6xl px-6 py-16">
+    <p class="font-mono text-xs uppercase tracking-[0.3em] text-(--accent-text)">Event Archive</p>
+    <h1 class="mt-2 font-display text-5xl font-bold tracking-tight">All Events</h1>
+    <p class="mt-4 max-w-xl font-body text-base text-(--text-muted)">
+      Every event covered so far, grouped by release year. Pick one to open its CG gallery.
+    </p>
+
+    <div id="event-list" class="mt-12">
+      <EventCardGrid />
+    </div>
+  </main>
+</BaseLayout>

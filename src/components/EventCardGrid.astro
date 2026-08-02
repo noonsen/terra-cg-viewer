@@ -1,0 +1,59 @@
+---
+import { getCollection } from 'astro:content';
+
+const events = await getCollection('events');
+
+const byYearDesc = events
+  .slice()
+  .sort((a, b) => b.data.releaseDate.getTime() - a.data.releaseDate.getTime());
+
+const groups = new Map<number, typeof events>();
+for (const event of byYearDesc) {
+  const year = event.data.releaseDate.getFullYear();
+  const bucket = groups.get(year);
+  if (bucket) {
+    bucket.push(event);
+  } else {
+    groups.set(year, [event]);
+  }
+}
+const years = [...groups.keys()].sort((a, b) => b - a);
+---
+
+<div class="flex flex-col gap-12">
+  {
+    years.map((year) => (
+      <section aria-labelledby={`year-${year}`}>
+        <h2
+          id={`year-${year}`}
+          class="mb-4 flex items-center gap-4 font-mono text-sm uppercase tracking-[0.2em] text-(--text-muted)"
+        >
+          <span class="text-(--accent-text)">{year}</span>
+          <span class="h-px flex-1 bg-(--text-secondary)/30" aria-hidden="true" />
+        </h2>
+
+        <ul class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          {groups.get(year)!.map((event) => (
+            <li>
+              <a
+                href={`/events/${event.id}`}
+                class="block h-full rounded-sm border border-(--text-secondary)/40 bg-(--bg) p-6 transition-colors hover:border-(--accent) focus-visible:outline-2 focus-visible:outline-(--accent-text) focus-visible:outline-offset-2"
+              >
+                <h3 class="font-display text-2xl font-bold text-(--text-primary)">
+                  {event.data.title}
+                </h3>
+                <p class="mt-2 font-mono text-xs uppercase tracking-wide text-(--accent-text)">
+                  {event.data.releaseDate.toISOString().slice(0, 10)}
+                </p>
+                <p class="mt-2 font-body text-sm text-(--text-muted)">
+                  {event.data.characters.slice(0, 3).join(', ')}
+                  {event.data.characters.length > 3 && ' …'}
+                </p>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
+    ))
+  }
+</div>

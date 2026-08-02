@@ -1,0 +1,42 @@
+---
+const path = Astro.url.pathname;
+const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWith(href));
+
+const navItems = [
+  { href: '/', label: 'Home' },
+  { href: '/events', label: 'Events' },
+];
+---
+
+<header class="sticky top-0 z-30 border-b border-(--text-secondary)/30 bg-(--bg)/90 backdrop-blur">
+  <div class="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
+    <a
+      href="/"
+      class="font-display text-lg font-bold uppercase tracking-wide text-(--text-primary) hover:text-(--accent-text) focus-visible:outline-2 focus-visible:outline-(--accent-text) focus-visible:outline-offset-2"
+    >
+      Terra <span class="text-(--accent-text)">CG</span> Viewer
+    </a>
+    <nav aria-label="Primary">
+      <ul class="flex items-center gap-6 font-mono text-xs uppercase tracking-[0.2em]">
+        {
+          navItems.map((item) => (
+            <li>
+              <a
+                href={item.href}
+                aria-current={isActive(item.href) ? 'page' : undefined}
+                class:list={[
+                  'rounded-sm transition-colors focus-visible:outline-2 focus-visible:outline-(--accent-text) focus-visible:outline-offset-2',
+                  isActive(item.href)
+                    ? 'text-(--accent-text)'
+                    : 'text-(--text-muted) hover:text-(--accent-text)',
+                ]}
+              >
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+  </div>
+</header>
