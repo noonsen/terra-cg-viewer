@@ -8,6 +8,15 @@ const events = defineCollection({
       title: z.string(),
       releaseDate: z.date(),
       characters: z.array(z.string()),
+      // Official event banner used as the archive/episode-grid cover, distinct
+      // from the in-gallery CGs below (which are the actual episode illustrations).
+      cover: z
+        .object({
+          image: z.union([image(), z.string()]),
+          source: z.string(),
+          credit: z.string(),
+        })
+        .optional(),
       theme: z.object({
         accent: z.string(),
         accentAlt: z.string(),

@@ -6,6 +6,10 @@ characters:
   - "Kroos the Keen Glint"
   - "Lee"
   - "Ling"
+cover:
+  image: "../../assets/events/invitationtowine/banner.png"
+  source: "arknights.wiki.gg"
+  credit: "via arknights.wiki.gg, © Hypergryph"
 theme:
   accent: "#B2653B"
   accentAlt: "#BA8530"

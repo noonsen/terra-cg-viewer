@@ -5,6 +5,10 @@ characters:
   - "Weedy"
   - "Mandragora"
   - "Elysium"
+cover:
+  image: "../../assets/events/hereapeoplesows/banner.png"
+  source: "arknights.wiki.gg"
+  credit: "via arknights.wiki.gg, © Hypergryph"
 theme:
   # Unified on the Lone Trail palette site-wide for consistent UI/UX and accessibility
   # rather than a per-event re-skin. See design doc Section 3.4, Option 1.

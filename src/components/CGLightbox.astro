@@ -82,6 +82,44 @@ const cgsJson = JSON.stringify(cgs).replace(/</g, '\\u003c');
   </div>
 </dialog>
 
+<style>
+  #cg-lightbox {
+    opacity: 1;
+    transform: scale(1);
+    transition:
+      opacity 200ms ease,
+      transform 200ms ease,
+      overlay 200ms allow-discrete,
+      display 200ms allow-discrete;
+  }
+
+  #cg-lightbox:not([open]) {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+
+  @starting-style {
+    #cg-lightbox[open] {
+      opacity: 0;
+      transform: scale(0.96);
+    }
+  }
+
+  #cg-lightbox::backdrop {
+    opacity: 1;
+    transition:
+      opacity 200ms ease,
+      overlay 200ms allow-discrete,
+      display 200ms allow-discrete;
+  }
+
+  @starting-style {
+    #cg-lightbox[open]::backdrop {
+      opacity: 0;
+    }
+  }
+</style>
+
 <script id="cg-lightbox-data" type="application/json" set:html={cgsJson} />
 
 <script>

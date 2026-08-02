@@ -1,5 +1,6 @@
 ---
 import { getCollection } from 'astro:content';
+import { Image } from 'astro:assets';
 
 const events = await getCollection('events');
 
@@ -18,6 +19,15 @@ for (const event of byYearDesc) {
   }
 }
 const years = [...groups.keys()].sort((a, b) => b - a);
+
+// The official event banner (wordmark art, already sourced + credited in the
+// content file) if one's been fetched, else fall back to the event's own key
+// illustration so events without a banner yet still get a cover.
+function coverFor(event: (typeof events)[number]) {
+  if (event.data.cover) return event.data.cover.image;
+  const cgs = event.data.cgs;
+  return cgs.find((cg) => cg.hero)?.image ?? cgs[0]?.image;
+}
 ---
 
 <div class="flex flex-col gap-12">
@@ -33,27 +43,72 @@ const years = [...groups.keys()].sort((a, b) => b - a);
         </h2>
 
         <ul class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          {groups.get(year)!.map((event) => (
-            <li>
-              <a
-                href={`/events/${event.id}`}
-                class="block h-full rounded-sm border border-(--text-secondary)/40 bg-(--bg) p-6 transition-colors hover:border-(--accent) focus-visible:outline-2 focus-visible:outline-(--accent-text) focus-visible:outline-offset-2"
-              >
-                <h3 class="font-display text-2xl font-bold text-(--text-primary)">
-                  {event.data.title}
-                </h3>
-                <p class="mt-2 font-mono text-xs uppercase tracking-wide text-(--accent-text)">
-                  {event.data.releaseDate.toISOString().slice(0, 10)}
-                </p>
-                <p class="mt-2 font-body text-sm text-(--text-muted)">
-                  {event.data.characters.slice(0, 3).join(', ')}
-                  {event.data.characters.length > 3 && ' …'}
-                </p>
-              </a>
-            </li>
-          ))}
+          {groups.get(year)!.map((event, i) => {
+            const cover = coverFor(event);
+            const { accent, accentAlt } = event.data.theme;
+            return (
+              <li class="tile-in" style={`animation-delay: ${Math.min(i, 10) * 40}ms;`}>
+                <a
+                  href={`/events/${event.id}`}
+                  style={`--accent: ${accent}; --accent-alt: ${accentAlt};`}
+                  class="event-tile group relative block overflow-hidden border border-(--text-secondary)/25 bg-(--bg) transition-[border-color,box-shadow,transform] duration-200 hover:-translate-y-0.5 active:scale-[0.97] hover:border-(--accent) hover:shadow-[0_8px_24px_-8px_var(--accent)] focus-visible:outline-2 focus-visible:outline-(--accent-text) focus-visible:outline-offset-2"
+                >
+                  <span
+                    class="pointer-events-none absolute inset-x-0 top-0 z-10 h-0.5 origin-left scale-x-0 bg-(--accent-alt) transition-transform duration-200 group-hover:scale-x-100"
+                    aria-hidden="true"
+                  />
+
+                  <div class="aspect-[1560/500] w-full overflow-hidden bg-(--bg)">
+                    {cover && typeof cover !== 'string' ? (
+                      <Image
+                        src={cover}
+                        alt={event.data.title}
+                        loading={i < 4 ? 'eager' : 'lazy'}
+                        width={780}
+                        format="webp"
+                        quality={72}
+                        class="h-full w-full scale-105 object-cover brightness-90 transition-[filter,transform] duration-300 group-hover:scale-110 group-hover:brightness-100"
+                      />
+                    ) : (
+                      <div
+                        aria-hidden="true"
+                        class="flex h-full w-full items-center justify-center font-mono text-xs text-(--surface)/50"
+                        style={`background: linear-gradient(160deg, color-mix(in srgb, var(--accent) 35%, var(--bg)), var(--bg));`}
+                      >
+                        {cover}
+                      </div>
+                    )}
+                  </div>
+
+                  {event.data.cover && (
+                    <span class="pointer-events-none absolute top-1.5 right-1.5 z-10 rounded-sm bg-(--bg)/80 px-1.5 py-0.5 font-mono text-[9px] text-(--text-muted) opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+                      {event.data.cover.credit}
+                    </span>
+                  )}
+
+                  <div class="flex items-center justify-between gap-2 border-t border-(--text-secondary)/25 bg-(--bg) px-3 py-2">
+                    <h3
+                      transition:name={`event-title-${event.id}`}
+                      class="font-display text-sm leading-tight font-bold text-(--text-primary) sm:text-base"
+                    >
+                      {event.data.title}
+                    </h3>
+                    <p class="shrink-0 font-mono text-[10px] whitespace-nowrap uppercase tracking-wide text-(--accent-text)">
+                      {event.data.releaseDate.toISOString().slice(0, 10)}
+                    </p>
+                  </div>
+                </a>
+              </li>
+            );
+          })}
         </ul>
       </section>
     ))
   }
 </div>
+
+<style>
+  .event-tile {
+    clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 0 100%);
+  }
+</style>

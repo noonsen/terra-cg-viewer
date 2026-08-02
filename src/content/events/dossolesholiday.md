@@ -6,6 +6,10 @@ characters:
   - "Tequila"
   - "La Pluma"
   - "Hoshiguma"
+cover:
+  image: "../../assets/events/dossolesholiday/banner.png"
+  source: "arknights.wiki.gg"
+  credit: "via arknights.wiki.gg, © Hypergryph"
 theme:
   accent: "#B2653B"
   accentAlt: "#BA8530"

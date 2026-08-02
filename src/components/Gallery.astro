@@ -60,6 +60,7 @@ cgs.forEach((cg, index) => {
     anchorId: g.anchorId,
     bgMix: 30 + (gi % 3) * 15,
     coverImage: g.items[0]?.cg.image,
+    featured: g.items.some((it) => it.cg.hero),
   }))}
 />
 

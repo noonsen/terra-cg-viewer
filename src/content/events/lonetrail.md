@@ -6,6 +6,10 @@ characters:
   - "Mostima"
   - "Ling"
   - "Bagpipe"
+cover:
+  image: "../../assets/events/lonetrail/banner.png"
+  source: "arknights.wiki.gg"
+  credit: "via arknights.wiki.gg, © Hypergryph"
 theme:
   accent: "#B2653B"
   accentAlt: "#BA8530"

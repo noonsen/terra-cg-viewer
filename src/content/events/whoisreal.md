@@ -6,6 +6,10 @@ characters:
   - "Lava the Purgatory"
   - "Mr. Nothing"
   - "Saga"
+cover:
+  image: "../../assets/events/whoisreal/banner.png"
+  source: "arknights.wiki.gg"
+  credit: "via arknights.wiki.gg, © Hypergryph"
 theme:
   accent: "#B2653B"
   accentAlt: "#BA8530"

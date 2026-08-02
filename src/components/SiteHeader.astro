@@ -25,9 +25,9 @@ const navItems = [
                 href={item.href}
                 aria-current={isActive(item.href) ? 'page' : undefined}
                 class:list={[
-                  'rounded-sm transition-colors focus-visible:outline-2 focus-visible:outline-(--accent-text) focus-visible:outline-offset-2',
+                  'nav-link relative rounded-sm py-1 transition-colors focus-visible:outline-2 focus-visible:outline-(--accent-text) focus-visible:outline-offset-2',
                   isActive(item.href)
-                    ? 'text-(--accent-text)'
+                    ? 'is-active text-(--accent-text)'
                     : 'text-(--text-muted) hover:text-(--accent-text)',
                 ]}
               >
@@ -40,3 +40,21 @@ const navItems = [
     </nav>
   </div>
 </header>
+
+<style>
+  .nav-link::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 100%;
+    bottom: -1px;
+    height: 2px;
+    background: var(--accent-alt);
+    transition: right 200ms ease;
+  }
+
+  .nav-link:hover::after,
+  .nav-link.is-active::after {
+    right: 0;
+  }
+</style>

@@ -1,6 +1,6 @@
 ---
 import '../styles/global.css';
-import LoadingSplash from '../components/LoadingSplash.astro';
+import { ClientRouter } from 'astro:transitions';
 import SiteHeader from '../components/SiteHeader.astro';
 import SiteFooter from '../components/SiteFooter.astro';
 
@@ -20,6 +20,7 @@ const { title, skipHref, skipLabel } = Astro.props;
     <meta name="viewport" content="width=device-width" />
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
+    <ClientRouter />
   </head>
   <body class="min-h-screen bg-(--bg) font-body text-(--text-primary)">
     {
@@ -29,7 +30,6 @@ const { title, skipHref, skipLabel } = Astro.props;
         </a>
       )
     }
-    <LoadingSplash />
     <SiteHeader />
     <slot />
     <SiteFooter />

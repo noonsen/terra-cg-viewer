@@ -7,6 +7,10 @@ characters:
   - "Eyjafjalla the Hvít Aska"
   - "Poncirus"
   - "Swire the Elegant Wit"
+cover:
+  image: "../../assets/events/solongadele/banner.png"
+  source: "arknights.wiki.gg"
+  credit: "via arknights.wiki.gg, © Hypergryph"
 theme:
   accent: "#B2653B"
   accentAlt: "#BA8530"

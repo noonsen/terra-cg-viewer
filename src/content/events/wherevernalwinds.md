@@ -6,6 +6,10 @@ characters:
   - "Lin"
   - "Jieyun"
   - "Firewhistle"
+cover:
+  image: "../../assets/events/wherevernalwinds/banner.png"
+  source: "arknights.wiki.gg"
+  credit: "via arknights.wiki.gg, © Hypergryph"
 theme:
   accent: "#B2653B"
   accentAlt: "#BA8530"
